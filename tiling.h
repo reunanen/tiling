@@ -17,13 +17,15 @@ struct size {
 };
 
 struct tile {
+    tile(const point& top_left, const size& size) : top_left(top_left), size(size) {}
+
     point top_left;
     size size;
 };
 
 struct parameters {
-    int max_width = 2048;
-    int max_height = 2048;
+    int max_tile_width = 2048;
+    int max_tile_height = 2048;
     int overlap_x = 227;
     int overlap_y = 227;
 };
