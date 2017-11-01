@@ -12,11 +12,11 @@ int find_starting_center(int full_dimension, int tile_dimension, int overlap)
     while (starting_center - stride >= 0) {
         starting_center -= stride;
     }
-    if (starting_center > stride / 2) {
+    if (starting_center > tile_dimension / 2) {
         starting_center -= stride / 2;
     }
     assert(starting_center >= 0);
-    assert(starting_center < tile_dimension / 2);
+    assert(starting_center <= tile_dimension / 2);
     return starting_center;
 }
 

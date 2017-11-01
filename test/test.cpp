@@ -32,6 +32,26 @@ class TilingTest : public ::testing::Test {
     // Objects declared here can be used by all tests in the test case for Foo.
 };
 
+TEST_F(TilingTest, HandlesSmallImageCorrectly) {
+    const tiling::parameters parameters;
+    const auto tiles = tiling::get_tiles(tiling::size(500, 500), parameters);
+    EXPECT_EQ(tiles.size(), 1);
+    EXPECT_EQ(tiles[0].top_left.x, 0);
+    EXPECT_EQ(tiles[0].top_left.y, 0);
+    EXPECT_EQ(tiles[0].size.width, 500);
+    EXPECT_EQ(tiles[0].size.height, 500);
+}
+
+TEST_F(TilingTest, HandlesMaxTileSizeImageCorrectly) {
+    const tiling::parameters parameters;
+    const auto tiles = tiling::get_tiles(tiling::size(parameters.max_tile_width, parameters.max_tile_height), parameters);
+    EXPECT_EQ(tiles.size(), 1);
+    EXPECT_EQ(tiles[0].top_left.x, 0);
+    EXPECT_EQ(tiles[0].top_left.y, 0);
+    EXPECT_EQ(tiles[0].size.width, parameters.max_tile_width);
+    EXPECT_EQ(tiles[0].size.height, parameters.max_tile_height);
+}
+
 void CheckStartCoordinates(const std::vector<tiling::tile>& tiles)
 {
     EXPECT_EQ(tiles.front().top_left.x, 0);
