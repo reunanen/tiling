@@ -45,10 +45,17 @@ void CheckEndCoordinates(const std::vector<tiling::tile>& tiles, const tiling::s
     EXPECT_EQ(last_tile.top_left.y + last_tile.size.height, size.height);
 }
 
-void CheckOverlap(const std::vector<tiling::tile>& tiles, const tiling::parameters& parameters, size_t columnCount)
+void CheckOverlap(const std::vector<tiling::tile>& tiles, const tiling::parameters& parameters, int rowCount, int columnCount)
 {
-    EXPECT_EQ(tiles[0].size.width - tiles[1].top_left.x, parameters.overlap_x);
-    EXPECT_EQ(tiles[0].size.height - tiles[columnCount].top_left.y, parameters.overlap_y);
+    EXPECT_EQ(tiles.size(), rowCount * columnCount);
+
+    for (int row = 0; row < rowCount - 1; ++row) {
+        for (int column = 0; column < columnCount - 1; ++column) {
+            const int index = row * columnCount + column;
+            EXPECT_EQ(tiles[index].top_left.x + tiles[index].size.width - tiles[index + 1].top_left.x, parameters.overlap_x);
+            EXPECT_EQ(tiles[index].top_left.y + tiles[index].size.height - tiles[index + columnCount].top_left.y, parameters.overlap_y);
+        }
+    }
 }
 
 TEST_F(TilingTest, ReturnsEvenNumberOfTiles) {
@@ -56,7 +63,7 @@ TEST_F(TilingTest, ReturnsEvenNumberOfTiles) {
     const auto tiles = tiling::get_tiles(tiling::size(3000, 3000), parameters);
     EXPECT_EQ(tiles.size(), 2 * 2);
 
-    CheckOverlap(tiles, parameters, 2);
+    CheckOverlap(tiles, parameters, 2, 2);
 }
 
 TEST_F(TilingTest, ReturnsOddNumberOfTiles) {
@@ -64,7 +71,7 @@ TEST_F(TilingTest, ReturnsOddNumberOfTiles) {
     const auto tiles = tiling::get_tiles(tiling::size(5000, 5000), parameters);
     EXPECT_EQ(tiles.size(), 3 * 3);
 
-    CheckOverlap(tiles, parameters, 3);
+    CheckOverlap(tiles, parameters, 3, 3);
 }
 
 }  // namespace
