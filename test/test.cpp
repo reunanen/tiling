@@ -32,14 +32,39 @@ class TilingTest : public ::testing::Test {
     // Objects declared here can be used by all tests in the test case for Foo.
 };
 
+void CheckStartCoordinates(const std::vector<tiling::tile>& tiles)
+{
+    EXPECT_EQ(tiles.front().top_left.x, 0);
+    EXPECT_EQ(tiles.front().top_left.y, 0);
+}
+
+void CheckEndCoordinates(const std::vector<tiling::tile>& tiles, const tiling::size& size)
+{
+    const auto& last_tile = tiles.back();
+    EXPECT_EQ(last_tile.top_left.x + last_tile.size.width, size.width);
+    EXPECT_EQ(last_tile.top_left.y + last_tile.size.height, size.height);
+}
+
+void CheckOverlap(const std::vector<tiling::tile>& tiles, const tiling::parameters& parameters, size_t columnCount)
+{
+    EXPECT_EQ(tiles[0].size.width - tiles[1].top_left.x, parameters.overlap_x);
+    EXPECT_EQ(tiles[0].size.height - tiles[columnCount].top_left.y, parameters.overlap_y);
+}
+
 TEST_F(TilingTest, ReturnsEvenNumberOfTiles) {
-    const auto tiles = tiling::get_tiles(tiling::size(3000, 3000), tiling::parameters());
+    const tiling::parameters parameters;
+    const auto tiles = tiling::get_tiles(tiling::size(3000, 3000), parameters);
     EXPECT_EQ(tiles.size(), 2 * 2);
+
+    CheckOverlap(tiles, parameters, 2);
 }
 
 TEST_F(TilingTest, ReturnsOddNumberOfTiles) {
-    const auto tiles = tiling::get_tiles(tiling::size(5000, 5000), tiling::parameters());
+    const tiling::parameters parameters;
+    const auto tiles = tiling::get_tiles(tiling::size(5000, 5000), parameters);
     EXPECT_EQ(tiles.size(), 3 * 3);
+
+    CheckOverlap(tiles, parameters, 3);
 }
 
 }  // namespace
