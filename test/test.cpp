@@ -77,5 +77,5 @@ TEST_F(TilingTest, ReturnsOddNumberOfTiles) {
 }  // namespace
 
 int main(int argc, char **argv) {
-    RUN_ALL_TESTS();
+    return RUN_ALL_TESTS();
 }
