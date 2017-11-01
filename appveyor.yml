@@ -1,8 +1,2 @@
-platform:
-  - x64
-configuration:
-  - Release
 install:
   - git submodule update --init --recursive
-test_script:
-  - test\x64\Release\test.exe
