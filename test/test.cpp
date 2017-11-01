@@ -61,7 +61,7 @@ void CheckOverlap(const std::vector<tiling::tile>& tiles, const tiling::paramete
 TEST_F(TilingTest, ReturnsEvenNumberOfTiles) {
     const tiling::parameters parameters;
     const auto tiles = tiling::get_tiles(tiling::size(3000, 3000), parameters);
-    EXPECT_EQ(tiles.size(), 2 * 2);
+    EXPECT_EQ(tiles.size(), 1 * 2);
 
     CheckOverlap(tiles, parameters, 2, 2);
 }
