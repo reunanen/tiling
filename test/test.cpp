@@ -93,37 +93,53 @@ void CheckOverlap(const std::vector<tiling::tile>& tiles, const tiling::paramete
 }
 
 TEST_F(TilingTest, ReturnsEvenNumberOfTiles) {
+    const tiling::size input_size(3000, 3000);
     const tiling::parameters parameters;
-    const auto tiles = tiling::get_tiles(tiling::size(3000, 3000), parameters);
+    const auto tiles = tiling::get_tiles(input_size, parameters);
     EXPECT_EQ(tiles.size(), 2 * 2);
+
+    CheckStartCoordinates(tiles);
+    CheckEndCoordinates(tiles, input_size);
 
     CheckOverlap(tiles, parameters, 2, 2);
 }
 
 TEST_F(TilingTest, ReturnsOddNumberOfTiles) {
+    const tiling::size input_size(5000, 5000);
     const tiling::parameters parameters;
-    const auto tiles = tiling::get_tiles(tiling::size(5000, 5000), parameters);
+    const auto tiles = tiling::get_tiles(input_size, parameters);
     EXPECT_EQ(tiles.size(), 3 * 3);
+
+    CheckStartCoordinates(tiles);
+    CheckEndCoordinates(tiles, input_size);
 
     CheckOverlap(tiles, parameters, 3, 3);
 }
 
 TEST_F(TilingTest, ReturnsEvenNumberOfTilesForEvenOverlap) {
+    const tiling::size input_size(3000, 3000);
     tiling::parameters parameters;
     parameters.overlap_x = 226;
     parameters.overlap_y = 226;
-    const auto tiles = tiling::get_tiles(tiling::size(3000, 3000), parameters);
+    const auto tiles = tiling::get_tiles(input_size, parameters);
     EXPECT_EQ(tiles.size(), 2 * 2);
+
+    CheckStartCoordinates(tiles);
+    CheckEndCoordinates(tiles, input_size);
 
     CheckOverlap(tiles, parameters, 2, 2);
 }
 
 TEST_F(TilingTest, ReturnsOddNumberOfTilesForEvenOverlap) {
+    const tiling::size input_size(5000, 5000);
     tiling::parameters parameters;
     parameters.overlap_x = 226;
     parameters.overlap_y = 226;
-    const auto tiles = tiling::get_tiles(tiling::size(5000, 5000), parameters);
+    const auto tiles = tiling::get_tiles(input_size, parameters);
     EXPECT_EQ(tiles.size(), 3 * 3);
+
+    CheckStartCoordinates(tiles);
+    CheckEndCoordinates(tiles, input_size);
 
     CheckOverlap(tiles, parameters, 3, 3);
 }
