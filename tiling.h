@@ -3,24 +3,32 @@
 namespace tiling {
 
 struct point {
+    point() {}
     point(int x, int y) : x(x), y(y) {}
 
-    int x = 0;
-    int y = 0;
+    int x = -1;
+    int y = -1;
 };
 
 struct size {
+    size() {}
     size(int width, int height) : width(width), height(height) {}
 
-    int width = 0;
-    int height = 0;
+    int width = -1;
+    int height = -1;
 };
 
-struct tile {
-    tile(const point& top_left, const size& size) : top_left(top_left), size(size) {}
+struct rectangle {
+    rectangle() {}
+    rectangle(const point& top_left, const size& size) : top_left(top_left), size(size) {}
 
     point top_left;
     size size;
+};
+
+struct tile {
+    rectangle full_rect;
+    rectangle non_overlapping_rect;
 };
 
 struct parameters {
