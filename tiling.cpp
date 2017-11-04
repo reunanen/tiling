@@ -38,7 +38,7 @@ std::vector<tile> get_tiles(const size& size, const parameters& parameters)
             const int desired_left = center_x - parameters.max_tile_width / 2;
             const int desired_top = center_y - parameters.max_tile_height / 2;
             const int desired_right = desired_left + parameters.max_tile_width;
-            const int desired_bottom = desired_top + parameters.max_tile_width;
+            const int desired_bottom = desired_top + parameters.max_tile_height;
             
             const int left = std::max(0, desired_left);
             const int top = std::max(0, desired_top);
