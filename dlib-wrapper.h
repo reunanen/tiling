@@ -1,3 +1,6 @@
+#ifndef TILING_DLIB_WRAPPER_H
+#define TILING_DLIB_WRAPPER_H
+
 #include <vector>
 #include <dlib/geometry/rectangle.h>
 #include "tiling.h"
@@ -35,3 +38,5 @@ std::vector<dlib_tile> get_tiles(int full_width, int full_height, const paramete
 }
 
 }
+
+#endif // TILING_DLIB_WRAPPER_H

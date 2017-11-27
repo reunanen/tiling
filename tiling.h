@@ -1,3 +1,6 @@
+#ifndef TILING_H
+#define TILING_H
+
 #include <vector>
 
 namespace tiling {
@@ -41,3 +44,5 @@ struct parameters {
 std::vector<tile> get_tiles(const size& size, const parameters& parameters);
 
 }
+
+#endif // TILING_H
