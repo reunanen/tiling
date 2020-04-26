@@ -11,6 +11,7 @@ struct dlib_tile
 {
     dlib::rectangle full_rect;
     dlib::rectangle non_overlapping_rect;
+    dlib::rectangle unique_rect;
 };
 
 dlib::rectangle to_dlib_rectangle(const rectangle& rect)
@@ -32,6 +33,7 @@ std::vector<dlib_tile> get_tiles(int full_width, int full_height, const paramete
     for (int i = 0, end = tiles.size(); i < end; ++i) {
         output[i].full_rect = to_dlib_rectangle(tiles[i].full_rect);
         output[i].non_overlapping_rect = to_dlib_rectangle(tiles[i].non_overlapping_rect);
+        output[i].unique_rect = to_dlib_rectangle(tiles[i].unique_rect);
     }
 
     return output;

@@ -8,6 +8,7 @@ struct opencv_tile
 {
     cv::Rect full_rect;
     cv::Rect non_overlapping_rect;
+    cv::Rect unique_rect;
 };
 
 cv::Rect to_opencv_rectangle(const rectangle& rect)
@@ -29,6 +30,7 @@ std::vector<opencv_tile> get_tiles(int full_width, int full_height, const parame
     for (int i = 0, end = tiles.size(); i < end; ++i) {
         output[i].full_rect = to_opencv_rectangle(tiles[i].full_rect);
         output[i].non_overlapping_rect = to_opencv_rectangle(tiles[i].non_overlapping_rect);
+        output[i].unique_rect = to_opencv_rectangle(tiles[i].unique_rect);
     }
 
     return output;

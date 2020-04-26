@@ -61,6 +61,9 @@ std::vector<tile> get_tiles(const size& size, const parameters& parameters)
             t.non_overlapping_rect.top_left.x = is_leftmost_column ? top_left.x : top_left.x + (parameters.overlap_x + 1) / 2;
             t.non_overlapping_rect.top_left.y = is_topmost_row ? top_left.y : top_left.y + (parameters.overlap_y + 1) / 2;
 
+            t.unique_rect.top_left.x = is_leftmost_column ? top_left.x : top_left.x + parameters.overlap_x;
+            t.unique_rect.top_left.y = is_topmost_row ? top_left.y : top_left.y + parameters.overlap_y;
+
             const int full_rect_right = top_left.x + tile_size.width;
             const int full_rect_bottom = top_left.y + tile_size.height;
 
@@ -69,6 +72,12 @@ std::vector<tile> get_tiles(const size& size, const parameters& parameters)
 
             t.non_overlapping_rect.size.width = non_overlapping_rect_right - t.non_overlapping_rect.top_left.x;
             t.non_overlapping_rect.size.height = non_overlapping_rect_bottom - t.non_overlapping_rect.top_left.y;
+
+            const int unique_rect_right = is_rightmost_column ? full_rect_right : full_rect_right - parameters.overlap_x;
+            const int unique_rect_bottom = is_bottommost_row ? full_rect_bottom : full_rect_bottom - parameters.overlap_y;
+
+            t.unique_rect.size.width = unique_rect_right - t.unique_rect.top_left.x;
+            t.unique_rect.size.height = unique_rect_bottom - t.unique_rect.top_left.y;
 
             tiles.push_back(t);
         }

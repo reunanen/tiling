@@ -44,6 +44,10 @@ TEST_F(TilingTest, HandlesSmallImageCorrectly) {
     EXPECT_EQ(tiles[0].non_overlapping_rect.top_left.y, 0);
     EXPECT_EQ(tiles[0].non_overlapping_rect.size.width, 500);
     EXPECT_EQ(tiles[0].non_overlapping_rect.size.height, 500);
+    EXPECT_EQ(tiles[0].unique_rect.top_left.x, 0);
+    EXPECT_EQ(tiles[0].unique_rect.top_left.y, 0);
+    EXPECT_EQ(tiles[0].unique_rect.size.width, 500);
+    EXPECT_EQ(tiles[0].unique_rect.size.height, 500);
 }
 
 TEST_F(TilingTest, HandlesMaxTileSizeImageCorrectly) {
@@ -58,6 +62,10 @@ TEST_F(TilingTest, HandlesMaxTileSizeImageCorrectly) {
     EXPECT_EQ(tiles[0].non_overlapping_rect.top_left.y, 0);
     EXPECT_EQ(tiles[0].non_overlapping_rect.size.width, parameters.max_tile_width);
     EXPECT_EQ(tiles[0].non_overlapping_rect.size.height, parameters.max_tile_height);
+    EXPECT_EQ(tiles[0].unique_rect.top_left.x, 0);
+    EXPECT_EQ(tiles[0].unique_rect.top_left.y, 0);
+    EXPECT_EQ(tiles[0].unique_rect.size.width, parameters.max_tile_width);
+    EXPECT_EQ(tiles[0].unique_rect.size.height, parameters.max_tile_height);
 }
 
 void CheckStartCoordinates(const std::vector<tiling::tile>& tiles)
@@ -66,6 +74,8 @@ void CheckStartCoordinates(const std::vector<tiling::tile>& tiles)
     EXPECT_EQ(tiles.front().full_rect.top_left.y, 0);
     EXPECT_EQ(tiles.front().non_overlapping_rect.top_left.x, 0);
     EXPECT_EQ(tiles.front().non_overlapping_rect.top_left.y, 0);
+    EXPECT_EQ(tiles.front().unique_rect.top_left.x, 0);
+    EXPECT_EQ(tiles.front().unique_rect.top_left.y, 0);
 }
 
 void CheckEndCoordinates(const std::vector<tiling::tile>& tiles, const tiling::size& size)
@@ -75,6 +85,8 @@ void CheckEndCoordinates(const std::vector<tiling::tile>& tiles, const tiling::s
     EXPECT_EQ(last_tile.full_rect.top_left.y + last_tile.full_rect.size.height, size.height);
     EXPECT_EQ(last_tile.non_overlapping_rect.top_left.x + last_tile.non_overlapping_rect.size.width, size.width);
     EXPECT_EQ(last_tile.non_overlapping_rect.top_left.y + last_tile.non_overlapping_rect.size.height, size.height);
+    EXPECT_EQ(last_tile.unique_rect.top_left.x + last_tile.unique_rect.size.width, size.width);
+    EXPECT_EQ(last_tile.unique_rect.top_left.y + last_tile.unique_rect.size.height, size.height);
 }
 
 void CheckOverlap(const std::vector<tiling::tile>& tiles, const tiling::parameters& parameters, int rowCount, int columnCount)
@@ -88,6 +100,10 @@ void CheckOverlap(const std::vector<tiling::tile>& tiles, const tiling::paramete
             EXPECT_EQ(tiles[index].full_rect.top_left.y + tiles[index].full_rect.size.height - tiles[index + columnCount].full_rect.top_left.y, parameters.overlap_y);
             EXPECT_EQ(tiles[index].non_overlapping_rect.top_left.x + tiles[index].non_overlapping_rect.size.width, tiles[index + 1].non_overlapping_rect.top_left.x);
             EXPECT_EQ(tiles[index].non_overlapping_rect.top_left.y + tiles[index].non_overlapping_rect.size.height, tiles[index + columnCount].non_overlapping_rect.top_left.y);
+            EXPECT_EQ(tiles[index].full_rect.top_left.x + tiles[index].full_rect.size.width, tiles[index + 1].unique_rect.top_left.x);
+            EXPECT_EQ(tiles[index].full_rect.top_left.y + tiles[index].full_rect.size.height, tiles[index + columnCount].unique_rect.top_left.y);
+            EXPECT_EQ(tiles[index].unique_rect.top_left.x + tiles[index].unique_rect.size.width, tiles[index + 1].full_rect.top_left.x);
+            EXPECT_EQ(tiles[index].unique_rect.top_left.y + tiles[index].unique_rect.size.height, tiles[index + columnCount].full_rect.top_left.y);
         }
     }
 }
