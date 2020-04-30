@@ -11,7 +11,7 @@ struct opencv_tile
     cv::Rect unique_rect;
 };
 
-cv::Rect to_opencv_rectangle(const rectangle& rect)
+inline cv::Rect to_opencv_rectangle(const rectangle& rect)
 {
     return cv::Rect(
         rect.top_left.x,
@@ -21,7 +21,7 @@ cv::Rect to_opencv_rectangle(const rectangle& rect)
     );
 }
 
-std::vector<opencv_tile> get_tiles(int full_width, int full_height, const parameters& parameters)
+inline std::vector<opencv_tile> get_tiles(int full_width, int full_height, const parameters& parameters)
 {
     const std::vector<tile> tiles = get_tiles(tiling::size(full_width, full_height), parameters);
 

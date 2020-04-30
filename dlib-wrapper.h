@@ -14,7 +14,7 @@ struct dlib_tile
     dlib::rectangle unique_rect;
 };
 
-dlib::rectangle to_dlib_rectangle(const rectangle& rect)
+inline dlib::rectangle to_dlib_rectangle(const rectangle& rect)
 {
     return dlib::rectangle(
         rect.top_left.x,
@@ -24,7 +24,7 @@ dlib::rectangle to_dlib_rectangle(const rectangle& rect)
     );
 }
 
-std::vector<dlib_tile> get_tiles(int full_width, int full_height, const parameters& parameters)
+inline std::vector<dlib_tile> get_tiles(int full_width, int full_height, const parameters& parameters)
 {
     const std::vector<tile> tiles = get_tiles(tiling::size(full_width, full_height), parameters);
 
