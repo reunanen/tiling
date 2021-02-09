@@ -27,7 +27,7 @@ inline std::vector<opencv_tile> get_tiles(int full_width, int full_height, const
 
     std::vector<opencv_tile> output(tiles.size());
 
-    for (int i = 0, end = tiles.size(); i < end; ++i) {
+    for (size_t i = 0, end = tiles.size(); i < end; ++i) {
         output[i].full_rect = to_opencv_rectangle(tiles[i].full_rect);
         output[i].non_overlapping_rect = to_opencv_rectangle(tiles[i].non_overlapping_rect);
         output[i].unique_rect = to_opencv_rectangle(tiles[i].unique_rect);
