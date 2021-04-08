@@ -26,7 +26,7 @@ struct rectangle {
     rectangle(const point& top_left, const size& size) : top_left(top_left), size(size) {}
 
     point top_left;
-    size size;
+    tiling::size size;
 };
 
 struct tile {
