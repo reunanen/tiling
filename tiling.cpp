@@ -61,10 +61,10 @@ std::vector<tile> get_tiles(const size& size, const parameters& parameters)
             const int desired_right = desired_left + parameters.max_tile_width;
             const int desired_bottom = desired_top + parameters.max_tile_height;
             
-            const int left = std::max(0, desired_left);
-            const int top = std::max(0, desired_top);
-            const int right = std::min(desired_right, size.width);
-            const int bottom = std::min(desired_bottom, size.height);
+            const int left   = parameters.limit_to_size ? std::max(0, desired_left)             : desired_left;
+            const int top    = parameters.limit_to_size ? std::max(0, desired_top)              : desired_top;
+            const int right  = parameters.limit_to_size ? std::min(desired_right, size.width)   : desired_right;
+            const int bottom = parameters.limit_to_size ? std::min(desired_bottom, size.height) : desired_bottom;
 
             const tiling::point top_left(left, top);
             const tiling::size tile_size(right - left, bottom - top);

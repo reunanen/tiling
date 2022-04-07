@@ -41,6 +41,7 @@ struct parameters {
     int max_tile_height = 2048;
     int overlap_x = 227;
     int overlap_y = 227;
+    bool limit_to_size = true;
 };
 
 std::vector<tile> get_tiles(const size& size, const parameters& parameters);
