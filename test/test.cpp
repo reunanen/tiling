@@ -166,6 +166,22 @@ TEST_F(TilingTest, ReturnsOddNumberOfTilesForEvenOverlap) {
     CheckOverlap(tiles, parameters, 3, 3);
 }
 
+#ifndef NDEBUG
+TEST_F(TilingTest, ReservesCorrectAmountOfMemory) {
+    for (int width = 1; width < 20; ++width) {
+        for (int height = 1; height < 20; ++height) {
+            const tiling::size input_size(width, height);
+            tiling::parameters parameters;
+            parameters.max_tile_height = 8;
+            parameters.max_tile_width = 7;
+            parameters.overlap_x = 3;
+            parameters.overlap_y = 3;
+            const auto tiles = tiling::get_tiles(input_size, parameters);
+        }
+    }
+}
+#endif // NDEBUG
+
 }  // namespace
 
 int main(int argc, char **argv) {
