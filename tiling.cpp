@@ -37,12 +37,12 @@ std::vector<tile> get_tiles(const size& size, const parameters& parameters)
 
     tiles.reserve(count_x * count_y);
 
-    for (int center_y = starting_center.y; center_y < size.height; center_y += stride_y) {
+    for (int center_y = starting_center.y, index_y = 0; center_y < size.height; center_y += stride_y, ++index_y) {
 
         const bool is_topmost_row = center_y == starting_center.y;
         const bool is_bottommost_row = center_y + stride_y >= size.height;
 
-        for (int center_x = starting_center.x; center_x < size.width; center_x += stride_x) {
+        for (int center_x = starting_center.x, index_x = 0; center_x < size.width; center_x += stride_x, ++index_x) {
 
             const bool is_leftmost_column = center_x == starting_center.x;
             const bool is_rightmost_column = center_x + stride_x >= size.width;
@@ -61,6 +61,7 @@ std::vector<tile> get_tiles(const size& size, const parameters& parameters)
             const tiling::size tile_size(right - left, bottom - top);
             
             tile t;
+            t.index = point(index_x, index_y);
             t.full_rect = rectangle(top_left, tile_size);
 
             t.non_overlapping_rect.top_left.x = is_leftmost_column ? top_left.x : top_left.x + (parameters.overlap_x + 1) / 2;

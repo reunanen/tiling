@@ -36,6 +36,8 @@ TEST_F(TilingTest, HandlesSmallImageCorrectly) {
     const tiling::parameters parameters;
     const auto tiles = tiling::get_tiles(tiling::size(500, 500), parameters);
     EXPECT_EQ(tiles.size(), 1);
+    EXPECT_EQ(tiles[0].index.x, 0);
+    EXPECT_EQ(tiles[0].index.y, 0);
     EXPECT_EQ(tiles[0].full_rect.top_left.x, 0);
     EXPECT_EQ(tiles[0].full_rect.top_left.y, 0);
     EXPECT_EQ(tiles[0].full_rect.size.width, 500);
@@ -54,6 +56,8 @@ TEST_F(TilingTest, HandlesMaxTileSizeImageCorrectly) {
     const tiling::parameters parameters;
     const auto tiles = tiling::get_tiles(tiling::size(parameters.max_tile_width, parameters.max_tile_height), parameters);
     EXPECT_EQ(tiles.size(), 1);
+    EXPECT_EQ(tiles[0].index.x, 0);
+    EXPECT_EQ(tiles[0].index.y, 0);
     EXPECT_EQ(tiles[0].full_rect.top_left.x, 0);
     EXPECT_EQ(tiles[0].full_rect.top_left.y, 0);
     EXPECT_EQ(tiles[0].full_rect.size.width, parameters.max_tile_width);
@@ -96,6 +100,8 @@ void CheckOverlap(const std::vector<tiling::tile>& tiles, const tiling::paramete
     for (int row = 0; row < rowCount - 1; ++row) {
         for (int column = 0; column < columnCount - 1; ++column) {
             const int index = row * columnCount + column;
+            EXPECT_EQ(tiles[index].index.x, column);
+            EXPECT_EQ(tiles[index].index.y, row);
             EXPECT_EQ(tiles[index].full_rect.top_left.x + tiles[index].full_rect.size.width - tiles[index + 1].full_rect.top_left.x, parameters.overlap_x);
             EXPECT_EQ(tiles[index].full_rect.top_left.y + tiles[index].full_rect.size.height - tiles[index + columnCount].full_rect.top_left.y, parameters.overlap_y);
             EXPECT_EQ(tiles[index].non_overlapping_rect.top_left.x + tiles[index].non_overlapping_rect.size.width, tiles[index + 1].non_overlapping_rect.top_left.x);

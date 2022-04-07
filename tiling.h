@@ -30,6 +30,7 @@ struct rectangle {
 };
 
 struct tile {
+    point index;
     rectangle full_rect;
     rectangle non_overlapping_rect;
     rectangle unique_rect; // max area not covered by the full rect of any other tile
