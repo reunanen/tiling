@@ -18,7 +18,7 @@ int find_starting_center(int full_dimension, int tile_dimension, int overlap)
         starting_center -= stride / 2;
     }
     assert(starting_center >= 0);
-    assert(starting_center <= tile_dimension / 2);
+    assert(starting_center <= tile_dimension / 2 || overlap < 0);
     return starting_center;
 }
 
@@ -38,13 +38,13 @@ std::vector<tile> get_tiles(const size& size, const parameters& parameters)
 
     std::vector<tile> tiles;
 
-    int stride_x = parameters.max_tile_width - parameters.overlap_x;
-    int stride_y = parameters.max_tile_height - parameters.overlap_y;
+    const int stride_x = parameters.max_tile_width  - parameters.overlap_x;
+    const int stride_y = parameters.max_tile_height - parameters.overlap_y;
 
-    int64_t count_x = (size.width  - starting_center.x - 1) / stride_x + 1;
-    int64_t count_y = (size.height - starting_center.y - 1) / stride_y + 1;
+    const int count_x = (size.width  - starting_center.x - 1) / stride_x + 1;
+    const int count_y = (size.height - starting_center.y - 1) / stride_y + 1;
 
-    tiles.reserve(count_x * count_y);
+    tiles.reserve(static_cast<int64_t>(count_x) * static_cast<int64_t>(count_y));
 
     for (int center_y = starting_center.y, index_y = 0; center_y < size.height; center_y += stride_y, ++index_y) {
 

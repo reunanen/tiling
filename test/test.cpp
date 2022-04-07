@@ -182,6 +182,17 @@ TEST_F(TilingTest, ReservesCorrectAmountOfMemory) {
 }
 #endif // NDEBUG
 
+TEST_F(TilingTest, HandlesNegativeOverlapCorrectly) {
+    const tiling::size input_size(35, 25);
+    tiling::parameters parameters;
+    parameters.max_tile_height = 11;
+    parameters.max_tile_width = 7;
+    parameters.overlap_x = -3;
+    parameters.overlap_y = -3;
+    const auto tiles = tiling::get_tiles(input_size, parameters);
+    EXPECT_EQ(tiles.size(), 8);
+}
+
 }  // namespace
 
 int main(int argc, char **argv) {
