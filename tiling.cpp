@@ -32,6 +32,11 @@ std::vector<tile> get_tiles(const size& size, const parameters& parameters)
     int stride_x = parameters.max_tile_width - parameters.overlap_x;
     int stride_y = parameters.max_tile_height - parameters.overlap_y;
 
+    int64_t count_x = (size.width  - starting_center.x - 1) / stride_x + 1;
+    int64_t count_y = (size.height - starting_center.y - 1) / stride_y + 1;
+
+    tiles.reserve(count_x * count_y);
+
     for (int center_y = starting_center.y; center_y < size.height; center_y += stride_y) {
 
         const bool is_topmost_row = center_y == starting_center.y;
@@ -82,6 +87,8 @@ std::vector<tile> get_tiles(const size& size, const parameters& parameters)
             tiles.push_back(t);
         }
     }
+
+    assert(tiles.size() == count_x * count_y);
 
     return tiles;
 }
