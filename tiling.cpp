@@ -1,5 +1,7 @@
 #include "tiling.h"
 #include <algorithm> // std::min and std::max
+#include <stdexcept>
+#include <string>
 #include <assert.h>
 
 namespace tiling {
@@ -22,6 +24,13 @@ int find_starting_center(int full_dimension, int tile_dimension, int overlap)
 
 std::vector<tile> get_tiles(const size& size, const parameters& parameters)
 {
+    if (parameters.max_tile_width <= parameters.overlap_x) {
+        throw std::runtime_error("parameters.max_tile_width <= parameters.overlap_x : " + std::to_string(parameters.max_tile_width) + " <= " + std::to_string(parameters.overlap_x));
+    }
+    if (parameters.max_tile_height <= parameters.overlap_y) {
+        throw std::runtime_error("parameters.max_tile_height <= parameters.overlap_y : " + std::to_string(parameters.max_tile_height) + " <= " + std::to_string(parameters.overlap_y));
+    }
+
     const point starting_center(
         find_starting_center(size.width, parameters.max_tile_width, parameters.overlap_x),
         find_starting_center(size.height, parameters.max_tile_height, parameters.overlap_y)
