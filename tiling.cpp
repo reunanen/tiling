@@ -22,7 +22,7 @@ int find_starting_center(int full_dimension, int tile_dimension, int overlap)
     return starting_center;
 }
 
-std::vector<tile> get_tiles(const size& size, const parameters& parameters)
+std::vector<tile> get_tiles(const size& size, const parameters& parameters, std::function<bool()> isCancelled)
 {
     if (parameters.max_tile_width <= parameters.overlap_x) {
         throw std::runtime_error("parameters.max_tile_width <= parameters.overlap_x : " + std::to_string(parameters.max_tile_width) + " <= " + std::to_string(parameters.overlap_x));
@@ -46,7 +46,7 @@ std::vector<tile> get_tiles(const size& size, const parameters& parameters)
 
     tiles.reserve(static_cast<int64_t>(count_x) * static_cast<int64_t>(count_y));
 
-    for (int center_y = starting_center.y, index_y = 0; center_y < size.height; center_y += stride_y, ++index_y) {
+    for (int center_y = starting_center.y, index_y = 0; center_y < size.height && !isCancelled(); center_y += stride_y, ++index_y) {
 
         const bool is_topmost_row = center_y == starting_center.y;
         const bool is_bottommost_row = center_y + stride_y >= size.height;

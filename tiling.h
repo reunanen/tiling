@@ -2,6 +2,7 @@
 #define TILING_H
 
 #include <vector>
+#include <functional>
 
 namespace tiling {
 
@@ -44,7 +45,7 @@ struct parameters {
     bool limit_to_size = true;
 };
 
-std::vector<tile> get_tiles(const size& size, const parameters& parameters);
+std::vector<tile> get_tiles(const size& size, const parameters& parameters, std::function<bool()> isCancelled = []() { return false; });
 
 }
 
