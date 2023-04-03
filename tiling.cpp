@@ -98,7 +98,7 @@ std::vector<tile> get_tiles(const size& size, const parameters& parameters, std:
         }
     }
 
-    assert(tiles.size() == static_cast<size_t>(count_x * count_y));
+    assert(tiles.size() == static_cast<size_t>(count_x * count_y) || isCancelled());
 
     return tiles;
 }
