@@ -11,7 +11,7 @@ int find_starting_center(int full_dimension, int tile_dimension, int overlap)
     assert(tile_dimension > overlap);
     const int stride = tile_dimension - overlap;
     int starting_center = full_dimension / 2;
-    while (starting_center - stride >= 0) {
+    while (starting_center - stride > 0) {
         starting_center -= stride;
     }
     if (starting_center > tile_dimension / 2) {
