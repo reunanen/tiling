@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <functional>
+#include <optional>
 
 namespace tiling {
 
@@ -45,6 +46,56 @@ struct parameters {
     bool limit_to_size = true;
 };
 
+class tiles {
+public:
+    tiles(const size& size, const parameters& parameters);
+
+    struct const_iterator {
+        const_iterator(const tiles* parent, int center_x, int center_y, int index_x, int index_y);
+
+        const tile& operator*();
+        const tile* operator->();
+        
+        const_iterator& operator++();
+        const_iterator operator++(int);
+
+        friend bool operator ==(const const_iterator& lhs, const const_iterator& rhs);
+        friend bool operator !=(const const_iterator& lhs, const const_iterator& rhs);
+
+    private:
+        void increment_x();
+        void increment_y();
+
+        void increment();
+        void update();
+
+        std::optional<tile> tile;
+
+        const tiles* parent;
+        int center_x;
+        int center_y;
+        int index_x;
+        int index_y;
+    };
+
+    const_iterator begin() const;
+    const_iterator end() const;
+
+    size_t size() const;
+
+private:
+    const int width;
+    const int height;
+    const parameters parameters;
+    const int starting_center_x;
+    const int starting_center_y;
+    const int stride_x;
+    const int stride_y;
+    const int count_x;
+    const int count_y;
+};
+
+// wrapper for backward compatibility
 std::vector<tile> get_tiles(const size& size, const parameters& parameters, std::function<bool()> isCancelled = []() { return false; });
 
 }
