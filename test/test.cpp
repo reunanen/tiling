@@ -193,6 +193,46 @@ TEST_F(TilingTest, HandlesNegativeOverlapCorrectly) {
     EXPECT_EQ(tiles.size(), 8);
 }
 
+TEST_F(TilingTest, HandlesSpecificEdgeCaseCorrectly) {
+    const auto check_output = [](const tiling::size& input_size, const std::vector<tiling::tile>& output) {
+        ASSERT_FALSE(output.empty());
+        int min_x =  std::numeric_limits<int>::max();
+        int min_y =  std::numeric_limits<int>::max();
+        int max_x = -std::numeric_limits<int>::max();
+        int max_y = -std::numeric_limits<int>::max();
+
+        for (const auto& tile : output) {
+            min_x = std::min(min_x, tile.full_rect.top_left.x);
+            min_y = std::min(min_y, tile.full_rect.top_left.y);
+            max_x = std::max(max_x, tile.full_rect.top_left.x + tile.full_rect.size.width);
+            max_y = std::max(max_y, tile.full_rect.top_left.y + tile.full_rect.size.height);
+        }
+
+        EXPECT_EQ(min_x, 0);
+        EXPECT_EQ(min_y, 0);
+        EXPECT_EQ(max_x, input_size.width);
+        EXPECT_EQ(max_y, input_size.height);
+    };
+
+    tiling::size input_size;
+    tiling::parameters parameters;
+
+    for (input_size.width = 659; input_size.width <= 661; ++input_size.width) {
+        for (input_size.height = 659; input_size.height <= 661; ++input_size.height) {
+            for (parameters.max_tile_width = 355; parameters.max_tile_width <= 357; ++parameters.max_tile_width) {
+                for (parameters.max_tile_height = 355; parameters.max_tile_height <= 357; ++parameters.max_tile_height) {
+                    for (parameters.overlap_x = 25; parameters.overlap_x <= 27; ++parameters.overlap_x) {
+                        for (parameters.overlap_y = 25; parameters.overlap_y <= 27; ++parameters.overlap_y) {
+                            const auto tiles = tiling::get_tiles(input_size, parameters);
+                            check_output(input_size, tiles);
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
 TEST_F(TilingTest, IteratorsGenerallyWorkAsExpected) {
     const tiling::size input_size(5000, 5000);
     tiling::parameters parameters;
