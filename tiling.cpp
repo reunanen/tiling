@@ -42,7 +42,7 @@ tiles::const_iterator::const_iterator(const tiles* parent, int center_x, int cen
     , index_y(index_y)
 {}
 
-const tile& tiles::const_iterator::operator*()
+const tile& tiles::const_iterator::operator*() const
 {
     if (!tile.has_value()) {
         update();
@@ -50,7 +50,7 @@ const tile& tiles::const_iterator::operator*()
     return tile.value();
 }
 
-const tile* tiles::const_iterator::operator->()
+const tile* tiles::const_iterator::operator->() const
 {
     if (!tile.has_value()) {
         update();
@@ -84,24 +84,23 @@ bool operator !=(const tiles::const_iterator& lhs, const tiles::const_iterator& 
     return !operator ==(lhs, rhs);
 }
 
-void tiles::const_iterator::increment_x()
-{
-    center_x += parent->stride_x;
-    ++index_x;
-
-    assert((center_x >= parent->width) == (index_x >= parent->count_x));
-}
-
-void tiles::const_iterator::increment_y()
-{
-    center_y += parent->stride_y;
-    ++index_y;
-
-    assert((center_y >= parent->height) == (index_y >= parent->count_y));
-}
-
 void tiles::const_iterator::increment()
 {
+    const auto increment_dim = [](int& center, int& index, int stride, int size, int count) {
+        center += stride;
+        index += 1;
+
+        assert((center >= size) == (index >= count));
+    };
+
+    const auto increment_x = [&] {
+        increment_dim(center_x, index_x, parent->stride_x, parent->width, parent->count_x);
+    };
+
+    const auto increment_y = [&] {
+        increment_dim(center_y, index_y, parent->stride_y, parent->height, parent->count_y);
+    };
+
     increment_x();
 
     if (center_x >= parent->width) {
@@ -118,7 +117,7 @@ void tiles::const_iterator::increment()
     tile.reset();
 }
 
-void tiles::const_iterator::update()
+void tiles::const_iterator::update() const
 {
     assert(!tile.has_value());
 

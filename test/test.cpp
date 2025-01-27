@@ -193,6 +193,22 @@ TEST_F(TilingTest, HandlesNegativeOverlapCorrectly) {
     EXPECT_EQ(tiles.size(), 8);
 }
 
+TEST_F(TilingTest, IteratorsGenerallyWorkAsExpected) {
+    const tiling::size input_size(5000, 5000);
+    tiling::parameters parameters;
+    const tiling::tiles tiles(input_size, parameters);
+    EXPECT_EQ(tiles.size(), 3 * 3);
+    auto i = tiles.begin();
+    EXPECT_EQ(i->index.x, 0);
+    EXPECT_EQ(i->index.y, 0);
+    const auto j = i;
+    i++;
+    EXPECT_EQ(i->index.x, 1);
+    EXPECT_EQ(i->index.y, 0);
+    EXPECT_EQ(j->index.x, 0);
+    EXPECT_EQ(j->index.y, 0);
+}
+
 }  // namespace
 
 int main(int argc, char **argv) {

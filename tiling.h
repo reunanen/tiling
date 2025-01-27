@@ -53,8 +53,8 @@ public:
     struct const_iterator {
         const_iterator(const tiles* parent, int center_x, int center_y, int index_x, int index_y);
 
-        const tile& operator*();
-        const tile* operator->();
+        const tile& operator*() const;
+        const tile* operator->() const;
         
         const_iterator& operator++();
         const_iterator operator++(int);
@@ -63,13 +63,10 @@ public:
         friend bool operator !=(const const_iterator& lhs, const const_iterator& rhs);
 
     private:
-        void increment_x();
-        void increment_y();
-
         void increment();
-        void update();
+        void update() const;
 
-        std::optional<tile> tile;
+        mutable std::optional<tile> tile;
 
         const tiles* parent;
         int center_x;
