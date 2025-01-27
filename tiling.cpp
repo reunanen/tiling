@@ -22,16 +22,45 @@ int find_starting_center(int full_dimension, int tile_dimension, int overlap)
     return starting_center;
 }
 
+int find_viewport_start_index(int full_image_starting_center, int tile_dimension, int min_coordinate, int stride)
+{
+    int index = 0;
+    auto starting_center = full_image_starting_center;
+    while (starting_center + tile_dimension / 2 < min_coordinate) {
+        starting_center += stride;
+        ++index;
+    }
+    return index;
+}
+
+int find_viewport_count(int starting_center, int stride, int end)
+{
+    int count = 0;
+    while (starting_center < end) {
+        starting_center += stride;
+        ++count;
+    }
+    return count;
+}
+
 tiles::tiles(const tiling::size& size, const tiling::parameters& parameters)
     : width (size.width)
     , height(size.height)
     , parameters(parameters)
-    , starting_center_x(find_starting_center(size.width,  parameters.max_tile_width,  parameters.overlap_x))
-    , starting_center_y(find_starting_center(size.height, parameters.max_tile_height, parameters.overlap_y))
+    , full_image_starting_center_x(find_starting_center(size.width,  parameters.max_tile_width,  parameters.overlap_x))
+    , full_image_starting_center_y(find_starting_center(size.height, parameters.max_tile_height, parameters.overlap_y))
     , stride_x(parameters.max_tile_width  - parameters.overlap_x)
     , stride_y(parameters.max_tile_height - parameters.overlap_y)
-    , count_x((size.width  - starting_center_x - 1) / stride_x + 1)
-    , count_y((size.height - starting_center_y - 1) / stride_y + 1)
+    , full_image_count_x((size.width  - full_image_starting_center_x - 1) / stride_x + 1)
+    , full_image_count_y((size.height - full_image_starting_center_y - 1) / stride_y + 1)
+    , viewport_start_index_x(parameters.viewport_rect.has_value() ? find_viewport_start_index(full_image_starting_center_x, parameters.max_tile_width,  parameters.viewport_rect->top_left.x, stride_x) : 0)
+    , viewport_start_index_y(parameters.viewport_rect.has_value() ? find_viewport_start_index(full_image_starting_center_y, parameters.max_tile_height, parameters.viewport_rect->top_left.y, stride_y) : 0)
+    , viewport_starting_center_x(full_image_starting_center_x + viewport_start_index_x * stride_x)
+    , viewport_starting_center_y(full_image_starting_center_y + viewport_start_index_y * stride_y)
+    , viewport_end_x(parameters.viewport_rect.has_value() ? std::min(parameters.viewport_rect->top_left.x + parameters.viewport_rect->size.width  + parameters.max_tile_width  / 2, size.width)  : size.width)
+    , viewport_end_y(parameters.viewport_rect.has_value() ? std::min(parameters.viewport_rect->top_left.y + parameters.viewport_rect->size.height + parameters.max_tile_height / 2, size.height) : size.height)
+    , viewport_count_x(find_viewport_count(viewport_starting_center_x, stride_x, viewport_end_x))
+    , viewport_count_y(find_viewport_count(viewport_starting_center_y, stride_y, viewport_end_y))
 {}
 
 tiles::const_iterator::const_iterator(const tiles* parent, int center_x, int center_y, int index_x, int index_y)
@@ -86,31 +115,31 @@ bool operator !=(const tiles::const_iterator& lhs, const tiles::const_iterator& 
 
 void tiles::const_iterator::increment()
 {
-    const auto increment_dim = [](int& center, int& index, int stride, int size, int count) {
+    const auto increment_dim = [](int& center, int& index, int stride, int size, int end_index) {
         center += stride;
         index += 1;
 
-        assert((center >= size) == (index >= count));
+        assert((center >= size) == (index >= end_index));
     };
 
     const auto increment_x = [&] {
-        increment_dim(center_x, index_x, parent->stride_x, parent->width, parent->count_x);
+        increment_dim(center_x, index_x, parent->stride_x, parent->viewport_end_x, parent->viewport_start_index_x + parent->viewport_count_x);
     };
 
     const auto increment_y = [&] {
-        increment_dim(center_y, index_y, parent->stride_y, parent->height, parent->count_y);
+        increment_dim(center_y, index_y, parent->stride_y, parent->viewport_end_y, parent->viewport_start_index_y + parent->viewport_count_y);
     };
 
     increment_x();
 
-    if (center_x >= parent->width) {
+    if (center_x >= parent->viewport_end_x) {
         increment_y();
 
-        center_x = parent->starting_center_x;
-        index_x = 0;
+        center_x = parent->viewport_starting_center_x;
+        index_x = parent->viewport_start_index_x;
     }
 
-    if (center_y >= parent->height) {
+    if (center_y >= parent->viewport_end_y) {
         *this = parent->end();
     }
 
@@ -121,10 +150,10 @@ void tiles::const_iterator::update() const
 {
     assert(!tile.has_value());
 
-    const bool is_topmost_row = center_y == parent->starting_center_y;
+    const bool is_topmost_row = center_y == parent->full_image_starting_center_y;
     const bool is_bottommost_row = center_y + parent->stride_y >= parent->height;
 
-    const bool is_leftmost_column = center_x == parent->starting_center_x;
+    const bool is_leftmost_column = center_x == parent->full_image_starting_center_x;
     const bool is_rightmost_column = center_x + parent->stride_x >= parent->width;
 
     const auto& parameters = parent->parameters;
@@ -170,17 +199,17 @@ void tiles::const_iterator::update() const
 
 tiles::const_iterator tiles::begin() const
 {
-    return const_iterator(this, starting_center_x, starting_center_y, 0, 0);
+    return const_iterator(this, viewport_starting_center_x, viewport_starting_center_y, viewport_start_index_x, viewport_start_index_y);
 }
 
 tiles::const_iterator tiles::end() const
 {
-    return const_iterator(this, width, height, count_x, count_y);
+    return const_iterator(this, viewport_end_x, viewport_end_y, viewport_start_index_x + viewport_count_x, viewport_start_index_y + viewport_count_y);
 }
 
 size_t tiles::size() const
 {
-    return static_cast<size_t>(count_x) * static_cast<size_t>(count_y);
+    return static_cast<size_t>(viewport_count_x) * static_cast<size_t>(viewport_count_y);
 }
 
 // wrapper for backward compatibility

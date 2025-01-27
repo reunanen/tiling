@@ -44,6 +44,7 @@ struct parameters {
     int overlap_x = 227;
     int overlap_y = 227;
     bool limit_to_size = true;
+    std::optional<rectangle> viewport_rect;
 };
 
 class tiles {
@@ -84,12 +85,20 @@ private:
     const int width;
     const int height;
     const parameters parameters;
-    const int starting_center_x;
-    const int starting_center_y;
+    const int full_image_starting_center_x;
+    const int full_image_starting_center_y;
     const int stride_x;
     const int stride_y;
-    const int count_x;
-    const int count_y;
+    const int full_image_count_x;
+    const int full_image_count_y;
+    const int viewport_start_index_x;
+    const int viewport_start_index_y;
+    const int viewport_starting_center_x;
+    const int viewport_starting_center_y;
+    const int viewport_end_x;
+    const int viewport_end_y;
+    const int viewport_count_x;
+    const int viewport_count_y;
 };
 
 // wrapper for backward compatibility
