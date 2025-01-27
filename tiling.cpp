@@ -46,7 +46,7 @@ int find_viewport_count(int starting_center, int stride, int end)
 tiles::tiles(const tiling::size& size, const tiling::parameters& parameters)
     : width (size.width)
     , height(size.height)
-    , parameters(parameters)
+    , params(parameters)
     , full_image_starting_center_x(find_starting_center(size.width,  parameters.max_tile_width,  parameters.overlap_x))
     , full_image_starting_center_y(find_starting_center(size.height, parameters.max_tile_height, parameters.overlap_y))
     , stride_x(parameters.max_tile_width  - parameters.overlap_x)
@@ -73,18 +73,18 @@ tiles::const_iterator::const_iterator(const tiles* parent, int center_x, int cen
 
 const tile& tiles::const_iterator::operator*() const
 {
-    if (!tile.has_value()) {
+    if (!t.has_value()) {
         update();
     }
-    return tile.value();
+    return t.value();
 }
 
 const tile* tiles::const_iterator::operator->() const
 {
-    if (!tile.has_value()) {
+    if (!t.has_value()) {
         update();
     }
-    return &tile.value();
+    return &t.value();
 }
 
 tiles::const_iterator& tiles::const_iterator::operator++() // prefix increment
@@ -143,12 +143,12 @@ void tiles::const_iterator::increment()
         *this = parent->end();
     }
 
-    tile.reset();
+    t.reset();
 }
 
 void tiles::const_iterator::update() const
 {
-    assert(!tile.has_value());
+    assert(!t.has_value());
 
     const bool is_topmost_row = center_y == parent->full_image_starting_center_y;
     const bool is_bottommost_row = center_y + parent->stride_y >= parent->height;
@@ -156,7 +156,7 @@ void tiles::const_iterator::update() const
     const bool is_leftmost_column = center_x == parent->full_image_starting_center_x;
     const bool is_rightmost_column = center_x + parent->stride_x >= parent->width;
 
-    const auto& parameters = parent->parameters;
+    const auto& parameters = parent->params;
 
     const int desired_left   = center_x - parameters.max_tile_width  / 2;
     const int desired_top    = center_y - parameters.max_tile_height / 2;
@@ -168,7 +168,7 @@ void tiles::const_iterator::update() const
     const int right  = parameters.limit_to_size ? std::min(desired_right , parent->width)  : desired_right;
     const int bottom = parameters.limit_to_size ? std::min(desired_bottom, parent->height) : desired_bottom;
 
-    auto& t = tile.emplace();
+    auto& t = this->t.emplace();
 
     t.index.x = index_x;
     t.index.y = index_y;

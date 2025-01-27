@@ -67,7 +67,7 @@ public:
         void increment();
         void update() const;
 
-        mutable std::optional<tile> tile;
+        mutable std::optional<tile> t;
 
         const tiles* parent;
         int center_x;
@@ -84,7 +84,7 @@ public:
 private:
     const int width;
     const int height;
-    const parameters parameters;
+    const parameters params;
     const int full_image_starting_center_x;
     const int full_image_starting_center_y;
     const int stride_x;
