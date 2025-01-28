@@ -233,6 +233,85 @@ TEST_F(TilingTest, HandlesSpecificEdgeCaseCorrectly) {
     }
 }
 
+TEST_F(TilingTest, IteratorsGenerallyWorkAsExpected) {
+    const tiling::size input_size(5000, 5000);
+    tiling::parameters parameters;
+    const tiling::tiles tiles(input_size, parameters);
+    EXPECT_EQ(tiles.size(), 3 * 3);
+    auto i = tiles.begin();
+    EXPECT_EQ(i->index.x, 0);
+    EXPECT_EQ(i->index.y, 0);
+    const auto j = i;
+    i++;
+    EXPECT_EQ(i->index.x, 1);
+    EXPECT_EQ(i->index.y, 0);
+    EXPECT_EQ(j->index.x, 0);
+    EXPECT_EQ(j->index.y, 0);
+}
+
+TEST_F(TilingTest, SupportsOptionalViewportRectangle) {
+    const tiling::size input_size(5000, 5000);
+    tiling::parameters parameters;
+    parameters.viewport_rect = std::make_optional<tiling::rectangle>(
+        tiling::point(2500, 4000),
+        tiling::size(3000, 500)
+    );
+    const auto tiles = tiling::get_tiles(input_size, parameters);
+    EXPECT_EQ(tiles.size(), 2);
+    for (int i = 0; i < tiles.size(); ++i) {
+        EXPECT_EQ(tiles[i].index.x, i + 1);
+        EXPECT_EQ(tiles[i].index.y, 2);
+    }
+}
+
+TEST_F(TilingTest, ResultContainsTilesOverlappingOptionalViewportAndNoOtherTiles) {
+    const tiling::size input_size(25896, 33943);
+    tiling::parameters parameters;
+    parameters.max_tile_width  = 497;
+    parameters.max_tile_height = 497;
+    parameters.overlap_x = 30;
+    parameters.overlap_y = 30;
+    parameters.limit_to_size = false;
+
+    const auto all_tiles = tiling::get_tiles(input_size, parameters);
+
+    parameters.viewport_rect = std::make_optional<tiling::rectangle>(
+        tiling::point(9678, 16907),
+        tiling::size(751, 891)
+    );
+
+    const auto viewport_tiles = tiling::get_tiles(input_size, parameters);
+
+    const auto is_overlap = [](const tiling::rectangle& lhs, const tiling::rectangle& rhs) {
+        if (lhs.top_left.x + lhs.size.width < rhs.top_left.x) {
+            return false;
+        }
+        if (lhs.top_left.y + lhs.size.height < rhs.top_left.y) {
+            return false;
+        }
+        if (rhs.top_left.x + rhs.size.width < lhs.top_left.x) {
+            return false;
+        }
+        if (rhs.top_left.y + rhs.size.height < lhs.top_left.y) {
+            return false;
+        }
+        return true;
+    };
+
+    for (const auto& tile : all_tiles) {
+        const auto should_be_viewport_tile = is_overlap(tile.full_rect, *parameters.viewport_rect);
+        const auto is_viewport_tile = std::find_if(
+            viewport_tiles.begin(),
+            viewport_tiles.end(),
+            [&tile](const tiling::tile& candidate) {
+                return candidate.index.x == tile.index.x
+                    && candidate.index.y == tile.index.y;
+            }
+        ) != viewport_tiles.end();
+        EXPECT_EQ(should_be_viewport_tile, is_viewport_tile);
+    }
+}
+
 }  // namespace
 
 int main(int argc, char **argv) {

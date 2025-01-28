@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <functional>
+#include <optional>
 
 namespace tiling {
 
@@ -43,8 +44,64 @@ struct parameters {
     int overlap_x = 227;
     int overlap_y = 227;
     bool limit_to_size = true;
+    std::optional<rectangle> viewport_rect;
 };
 
+class tiles {
+public:
+    tiles(const size& size, const parameters& parameters);
+
+    struct const_iterator {
+        const_iterator(const tiles* parent, int center_x, int center_y, int index_x, int index_y);
+
+        const tile& operator*() const;
+        const tile* operator->() const;
+        
+        const_iterator& operator++();
+        const_iterator operator++(int);
+
+        friend bool operator ==(const const_iterator& lhs, const const_iterator& rhs);
+        friend bool operator !=(const const_iterator& lhs, const const_iterator& rhs);
+
+    private:
+        void increment();
+        void update() const;
+
+        mutable std::optional<tile> t;
+
+        const tiles* parent;
+        int center_x;
+        int center_y;
+        int index_x;
+        int index_y;
+    };
+
+    const_iterator begin() const;
+    const_iterator end() const;
+
+    size_t size() const;
+
+private:
+    const int width;
+    const int height;
+    const parameters params;
+    const int full_image_starting_center_x;
+    const int full_image_starting_center_y;
+    const int stride_x;
+    const int stride_y;
+    const int full_image_count_x;
+    const int full_image_count_y;
+    const int viewport_start_index_x;
+    const int viewport_start_index_y;
+    const int viewport_starting_center_x;
+    const int viewport_starting_center_y;
+    const int viewport_end_x;
+    const int viewport_end_y;
+    const int viewport_count_x;
+    const int viewport_count_y;
+};
+
+// wrapper for backward compatibility
 std::vector<tile> get_tiles(const size& size, const parameters& parameters, std::function<bool()> isCancelled = []() { return false; });
 
 }

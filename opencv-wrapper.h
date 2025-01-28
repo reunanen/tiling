@@ -11,6 +11,20 @@ struct opencv_tile
     cv::Rect unique_rect;
 };
 
+inline tiling::rectangle from_opencv_rectangle(const cv::Rect& rect)
+{
+    return tiling::rectangle(
+        tiling::point(
+            rect.x,
+            rect.y
+        ),
+        tiling::size(
+            rect.width,
+            rect.height
+        )
+    );
+}
+
 inline cv::Rect to_opencv_rectangle(const rectangle& rect)
 {
     return cv::Rect(
