@@ -33,6 +33,17 @@ int find_viewport_start_index(int full_image_starting_center, int tile_dimension
     return index;
 }
 
+int find_viewport_end(int min_coordinate, int viewport_size, int tile_dimension, int full_dimension)
+{
+    if (viewport_size <= 0) {
+        return min_coordinate;
+    }
+    return std::min(
+        min_coordinate + viewport_size + tile_dimension / 2,
+        full_dimension
+    );
+}
+
 int find_viewport_count(int starting_center, int stride, int end)
 {
     int count = 0;
@@ -57,8 +68,8 @@ tiles::tiles(const tiling::size& size, const tiling::parameters& parameters)
     , viewport_start_index_y(parameters.viewport_rect.has_value() ? find_viewport_start_index(full_image_starting_center_y, parameters.max_tile_height, parameters.viewport_rect->top_left.y, stride_y) : 0)
     , viewport_starting_center_x(full_image_starting_center_x + viewport_start_index_x * stride_x)
     , viewport_starting_center_y(full_image_starting_center_y + viewport_start_index_y * stride_y)
-    , viewport_end_x(parameters.viewport_rect.has_value() ? std::min(parameters.viewport_rect->top_left.x + parameters.viewport_rect->size.width  + parameters.max_tile_width  / 2, size.width)  : size.width)
-    , viewport_end_y(parameters.viewport_rect.has_value() ? std::min(parameters.viewport_rect->top_left.y + parameters.viewport_rect->size.height + parameters.max_tile_height / 2, size.height) : size.height)
+    , viewport_end_x(parameters.viewport_rect.has_value() ? find_viewport_end(parameters.viewport_rect->top_left.x, parameters.viewport_rect->size.width,  parameters.max_tile_width,  size.width)  : size.width)
+    , viewport_end_y(parameters.viewport_rect.has_value() ? find_viewport_end(parameters.viewport_rect->top_left.y, parameters.viewport_rect->size.height, parameters.max_tile_height, size.height) : size.height)
     , viewport_count_x(find_viewport_count(viewport_starting_center_x, stride_x, viewport_end_x))
     , viewport_count_y(find_viewport_count(viewport_starting_center_y, stride_y, viewport_end_y))
 {}
@@ -199,6 +210,9 @@ void tiles::const_iterator::update() const
 
 tiles::const_iterator tiles::begin() const
 {
+    if (size() == 0) {
+        return end();
+    }
     return const_iterator(this, viewport_starting_center_x, viewport_starting_center_y, viewport_start_index_x, viewport_start_index_y);
 }
 
