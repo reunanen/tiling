@@ -312,6 +312,17 @@ TEST_F(TilingTest, ResultContainsTilesOverlappingOptionalViewportAndNoOtherTiles
     }
 }
 
+TEST_F(TilingTest, ReturnsNoTilesForEmptyViewport) {
+    const tiling::size input_size(5000, 5000);
+    tiling::parameters parameters;
+    parameters.viewport_rect = std::make_optional<tiling::rectangle>(
+        tiling::point(2500, 4000),
+        tiling::size(0, 0)
+    );
+    const auto tiles = tiling::get_tiles(input_size, parameters);
+    EXPECT_TRUE(tiles.empty());
+}
+
 }  // namespace
 
 int main(int argc, char **argv) {
