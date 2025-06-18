@@ -49,6 +49,9 @@ struct parameters {
 
 class tiles {
 public:
+    tiles(const rectangle& size, const parameters& parameters);
+
+    // just a convenience wrapper around the above constructor, mainly for backward compatibility
     tiles(const size& size, const parameters& parameters);
 
     struct const_iterator {
@@ -84,6 +87,7 @@ public:
 private:
     const int width;
     const int height;
+    const point top_left;
     const parameters params;
     const int full_image_starting_center_x;
     const int full_image_starting_center_y;
@@ -101,8 +105,9 @@ private:
     const int viewport_count_y;
 };
 
-// wrapper for backward compatibility
-std::vector<tile> get_tiles(const size& size, const parameters& parameters, std::function<bool()> isCancelled = []() { return false; });
+// wrappers for backward compatibility
+std::vector<tile> get_tiles(const rectangle& rect, const parameters& parameters, std::function<bool()> isCancelled = []() { return false; });
+std::vector<tile> get_tiles(const size& size,      const parameters& parameters, std::function<bool()> isCancelled = []() { return false; });
 
 }
 

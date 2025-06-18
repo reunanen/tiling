@@ -6,18 +6,18 @@
 
 namespace tiling {
 
-int find_starting_center(int full_dimension, int tile_dimension, int overlap)
+int find_starting_center(int start_coordinate, int full_dimension, int tile_dimension, int overlap)
 {
     assert(tile_dimension > overlap);
     const int stride = tile_dimension - overlap;
-    int starting_center = full_dimension / 2;
-    while (starting_center - stride > 0) {
+    int starting_center = start_coordinate + full_dimension / 2;
+    while (starting_center - stride > start_coordinate) {
         starting_center -= stride;
     }
     if (starting_center > tile_dimension / 2) {
         starting_center -= stride / 2;
     }
-    assert(starting_center >= 0);
+    assert(starting_center >= start_coordinate);
     assert(starting_center <= tile_dimension / 2 || overlap < 0);
     return starting_center;
 }
@@ -43,24 +43,30 @@ int find_viewport_count(int starting_center, int stride, int end)
     return count;
 }
 
-tiles::tiles(const tiling::size& size, const tiling::parameters& parameters)
-    : width (size.width)
-    , height(size.height)
+tiles::tiles(const tiling::rectangle& rect, const tiling::parameters& parameters)
+    : width (rect.size.width)
+    , height(rect.size.height)
+    , top_left(rect.top_left)
     , params(parameters)
-    , full_image_starting_center_x(find_starting_center(size.width,  parameters.max_tile_width,  parameters.overlap_x))
-    , full_image_starting_center_y(find_starting_center(size.height, parameters.max_tile_height, parameters.overlap_y))
+    , full_image_starting_center_x(find_starting_center(rect.top_left.x, rect.size.width,  parameters.max_tile_width,  parameters.overlap_x))
+    , full_image_starting_center_y(find_starting_center(rect.top_left.y, rect.size.height, parameters.max_tile_height, parameters.overlap_y))
     , stride_x(parameters.max_tile_width  - parameters.overlap_x)
     , stride_y(parameters.max_tile_height - parameters.overlap_y)
-    , full_image_count_x((size.width  - full_image_starting_center_x - 1) / stride_x + 1)
-    , full_image_count_y((size.height - full_image_starting_center_y - 1) / stride_y + 1)
+    , full_image_count_x((rect.size.width  - full_image_starting_center_x - 1) / stride_x + 1)
+    , full_image_count_y((rect.size.height - full_image_starting_center_y - 1) / stride_y + 1)
     , viewport_start_index_x(parameters.viewport_rect.has_value() ? find_viewport_start_index(full_image_starting_center_x, parameters.max_tile_width,  parameters.viewport_rect->top_left.x, stride_x) : 0)
     , viewport_start_index_y(parameters.viewport_rect.has_value() ? find_viewport_start_index(full_image_starting_center_y, parameters.max_tile_height, parameters.viewport_rect->top_left.y, stride_y) : 0)
     , viewport_starting_center_x(full_image_starting_center_x + viewport_start_index_x * stride_x)
     , viewport_starting_center_y(full_image_starting_center_y + viewport_start_index_y * stride_y)
-    , viewport_end_x(parameters.viewport_rect.has_value() ? std::min(parameters.viewport_rect->top_left.x + parameters.viewport_rect->size.width  + parameters.max_tile_width  / 2, size.width)  : size.width)
-    , viewport_end_y(parameters.viewport_rect.has_value() ? std::min(parameters.viewport_rect->top_left.y + parameters.viewport_rect->size.height + parameters.max_tile_height / 2, size.height) : size.height)
+    , viewport_end_x(parameters.viewport_rect.has_value() ? std::min(parameters.viewport_rect->top_left.x + parameters.viewport_rect->size.width  + parameters.max_tile_width  / 2, rect.size.width)  : rect.top_left.x + rect.size.width)
+    , viewport_end_y(parameters.viewport_rect.has_value() ? std::min(parameters.viewport_rect->top_left.y + parameters.viewport_rect->size.height + parameters.max_tile_height / 2, rect.size.height) : rect.top_left.y + rect.size.height)
     , viewport_count_x(find_viewport_count(viewport_starting_center_x, stride_x, viewport_end_x))
     , viewport_count_y(find_viewport_count(viewport_starting_center_y, stride_y, viewport_end_y))
+{}
+
+// just a convenience wrapper around the above constructor, mainly for backward compatibility
+tiles::tiles(const tiling::size& size, const tiling::parameters& parameters)
+    : tiles(rectangle(point(0, 0), size), parameters)
 {}
 
 tiles::const_iterator::const_iterator(const tiles* parent, int center_x, int center_y, int index_x, int index_y)
@@ -163,10 +169,10 @@ void tiles::const_iterator::update() const
     const int desired_right  = desired_left + parameters.max_tile_width;
     const int desired_bottom = desired_top  + parameters.max_tile_height;
 
-    const int left   = parameters.limit_to_size ? std::max(0, desired_left) : desired_left;
-    const int top    = parameters.limit_to_size ? std::max(0, desired_top)  : desired_top;
-    const int right  = parameters.limit_to_size ? std::min(desired_right , parent->width)  : desired_right;
-    const int bottom = parameters.limit_to_size ? std::min(desired_bottom, parent->height) : desired_bottom;
+    const int left   = parameters.limit_to_size ? std::max(parent->top_left.x, desired_left) : desired_left;
+    const int top    = parameters.limit_to_size ? std::max(parent->top_left.y, desired_top)  : desired_top;
+    const int right  = parameters.limit_to_size ? std::min(desired_right , parent->top_left.x + parent->width)  : desired_right;
+    const int bottom = parameters.limit_to_size ? std::min(desired_bottom, parent->top_left.y + parent->height) : desired_bottom;
 
     auto& t = this->t.emplace();
 
@@ -213,9 +219,10 @@ size_t tiles::size() const
 }
 
 // wrapper for backward compatibility
-std::vector<tile> get_tiles(const size& size, const parameters& parameters, std::function<bool()> isCancelled)
+
+std::vector<tile> get_tiles(const rectangle& rectangle, const parameters& parameters, std::function<bool()> isCancelled)
 {
-    const tiling::tiles tiles(size, parameters);
+    const tiling::tiles tiles(rectangle, parameters);
 
     std::vector<tile> output(tiles.size());
 
@@ -234,6 +241,11 @@ std::vector<tile> get_tiles(const size& size, const parameters& parameters, std:
     assert(i == output.size() || isCancelled());
 
     return output;
+}
+
+std::vector<tile> get_tiles(const size& size, const parameters& parameters, std::function<bool()> isCancelled)
+{
+    return get_tiles(rectangle(point(0, 0), size), parameters, isCancelled);
 }
 
 }
