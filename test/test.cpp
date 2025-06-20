@@ -312,6 +312,26 @@ TEST_F(TilingTest, ResultContainsTilesOverlappingOptionalViewportAndNoOtherTiles
     }
 }
 
+TEST_F(TilingTest, SupportsArbitraryInputRectAndNotOnlySize) {
+    const tiling::parameters parameters;
+    const auto tiles = tiling::get_tiles(tiling::rectangle(tiling::point(-100, -100), tiling::size(500, 500)), parameters);
+    EXPECT_EQ(tiles.size(), 1);
+    EXPECT_EQ(tiles[0].index.x, 0);
+    EXPECT_EQ(tiles[0].index.y, 0);
+    EXPECT_EQ(tiles[0].full_rect.top_left.x, -100);
+    EXPECT_EQ(tiles[0].full_rect.top_left.y, -100);
+    EXPECT_EQ(tiles[0].full_rect.size.width, 500);
+    EXPECT_EQ(tiles[0].full_rect.size.height, 500);
+    EXPECT_EQ(tiles[0].non_overlapping_rect.top_left.x, -100);
+    EXPECT_EQ(tiles[0].non_overlapping_rect.top_left.y, -100);
+    EXPECT_EQ(tiles[0].non_overlapping_rect.size.width, 500);
+    EXPECT_EQ(tiles[0].non_overlapping_rect.size.height, 500);
+    EXPECT_EQ(tiles[0].unique_rect.top_left.x, -100);
+    EXPECT_EQ(tiles[0].unique_rect.top_left.y, -100);
+    EXPECT_EQ(tiles[0].unique_rect.size.width, 500);
+    EXPECT_EQ(tiles[0].unique_rect.size.height, 500);
+}
+
 }  // namespace
 
 int main(int argc, char **argv) {
